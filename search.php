@@ -4,28 +4,8 @@
 <?php
    // Handles database access
    require_once('dblogin.php');
-
-   // Region Database Query
-   $regions  = "SELECT region.* ";
-   $regions .= "FROM region";   
-   
-   // Grape Variety Database Query
-   $grapes  = "SELECT grape_variety.* ";
-   $grapes .= "FROM grape_variety";
-
-   // Wine Year Database Query  
-   $ascYear = $dbconn->prepare("SELECT wine.year 
-   								FROM wine 
-   								ORDER BY year ASC");
-   $ascYear->execute();
-   $minYear = $ascYear->fetchColumn();
-
-   $descYear = $dbconn->prepare("SELECT wine.year 
-   								FROM wine 
-   								ORDER BY year DESC");
-   $descYear->execute();
-   $maxYear = $descYear->fetchColumn();  
 ?>
+
 
 
 <!-- Start HTML --> 
@@ -39,12 +19,18 @@
    <div id="container">			
       <h2>Winestore Database Search</h2>
       
+      <!-- Search criteria form -->
       <form action="answer.php" method="get">
          <fieldset id="field">
 	        Wine Name: <input type="text" name="wine" id="wine"/><br>
 	        Winery Name: <input type="text" name="winery" id="winery"/><br>
 						
-	        Region: 
+	        Region:
+            <?php 
+               $regions  = "SELECT region.* ";
+               $regions .= "FROM region"; 
+            ?>
+            
             <select name="region">
                <?php
                   $count=1;
@@ -57,8 +43,13 @@
             </select><br>
 
 	        Grape Variety:
+            <?php 
+               $grapes  = "SELECT grape_variety.* ";
+               $grapes .= "FROM grape_variety";
+            ?>
+            
             <select name="variety">
-               <option value="all">All</option>
+               <option value="all">All</option>                         <!-- THIS IS AN ADDED VALUE AND MUST BE CONSIDERED IN ANSWER/RESULTS  -->
                <?php
                   $count=1;
                   foreach ($dbconn->query($grapes) as $row)
@@ -71,6 +62,20 @@
             </select><br>
 				
             Year:
+            <?php 
+               $ascYear = $dbconn->prepare("SELECT wine.year 
+                           					FROM wine 
+                           					ORDER BY year ASC");
+               $ascYear->execute();
+               $minYear = $ascYear->fetchColumn();
+            
+               $descYear = $dbconn->prepare("SELECT wine.year 
+                                       		 FROM wine 
+                                       		 ORDER BY year DESC");
+               $descYear->execute();
+               $maxYear = $descYear->fetchColumn();
+            ?>
+            
             <select name="year1">
                <?php  
                   for($i = $minYear; $i<$maxYear; $i++)
@@ -89,14 +94,12 @@
                ?>
             </select><br>
             
-	        Minimum Stock: <input type="text" name="stock" id="stock"/><br>
-	        Minimum Order: <input type="text" name="order" id="order"/><br>
+	        Minimum Stock Available: <input type="text" name="stock" id="stock"/><br>
+	        Minimum Previously Ordered: <input type="text" name="order" id="order"/><br>
 	        
-            Cost: $<input type="text" name="cost" id="cost"/>
-	               <select name="minmax">
-	                  <option value="minimum">Minimum</option>
-	                  <option value="maximum">Maximum</option>					    	     
-	               </select><br></br>
+            Cost: $<input type="text" name="cost1" id="cost1"/> to $<input type="text" name="cost2" id="cost2"/>
+            
+            <br></br>
 					    
 	        <input type="submit" value="Process Search"/>
             <input type="reset" value="Reset Form"/>				
@@ -107,10 +110,7 @@
 </div>
 		
 <?php
-   // Includes footer HTML 
+   // Includes footer HTML and close database connection
    include("layouts/footer.php"); 
 ?>
-
-<!-- Close database connection -->
-<?php $dbconn = null; ?>
 
